@@ -1,0 +1,475 @@
+#include "helpers.h"
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+// Convert image to grayscale
+void grayscale(int height, int width, RGBTRIPLE image[height][width])
+{
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+
+            int avg = 0;
+
+            avg = round((image[i][j].rgbtBlue + image[i][j].rgbtGreen + image[i][j].rgbtRed) / 3.0);
+
+            image[i][j].rgbtBlue = avg;
+            image[i][j].rgbtGreen = avg;
+            image[i][j].rgbtRed = avg;
+
+        }
+    }
+
+    return;
+}
+
+// Reflect image horizontally
+void reflect(int height, int width, RGBTRIPLE image[height][width])
+{
+    for (int i = 0; i < height; i++)
+    {
+
+        for (int j = 0; j < width / 2.0; j++)
+        {
+
+            RGBTRIPLE temp = image[i][j];
+            image[i][j] = image[i][width - 1 - j];
+            image[i][width - 1 - j] = temp;
+
+        }
+
+    }
+
+    return;
+}
+
+// Blur image
+void blur(int height, int width, RGBTRIPLE image[height][width])
+{
+
+    RGBTRIPLE blur[height][width];
+
+    for (int i = 0; i < height; i++)
+    {
+
+        for (int j = 0; j < width; j++)
+        {
+
+            blur[i][j] = image[i][j];
+
+        }
+
+    }
+
+    for (int y = 0; y < height; y++)
+    {
+
+        for (int x = 0; x < width; x++)
+        {
+
+            int sumRed = 0;
+            int sumBlue = 0;
+            int sumGreen = 0;
+
+            int avgRed = 0;
+            int avgBlue = 0;
+            int avgGreen = 0;
+
+
+            if (y == 0 && x == 0)
+            {
+
+                for (int k = y; k <= y + 1; k++)
+                {
+
+                    for ( int l = x; l <= x + 1; l++ )
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 4.0);
+                avgBlue = round((float)sumBlue / 4.0);
+                avgGreen = round((float)sumGreen / 4.0);
+            }
+
+            else if (y == 0 && x > 0 && x < width - 1)
+            {
+
+                for (int k = y; k <= y + 1; k++ )
+                {
+
+                    for (int l = x -1; l <= x + 1; l++)
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 6.0);
+                avgBlue = round((float)sumBlue / 6.0);
+                avgGreen = round((float)sumGreen / 6.0);
+            }
+
+            else if (y == 0 && x == width - 1)
+            {
+
+                for (int k = y; k <= y + 1; k++)
+                {
+
+                    for (int l = x - 1; l <= x; l++)
+                    {
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 4.0);
+                avgBlue = round((float)sumBlue / 4.0);
+                avgGreen = round((float)sumGreen / 4.0);
+
+            }
+
+            else if (x == 0 && y > 0 && y < height - 1)
+            {
+
+                for (int k = y - 1; k <= y + 1; k++)
+                {
+
+                    for (int l = x; l <= x + 1; l++)
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 6.0);
+                avgBlue = round((float)sumBlue / 6.0);
+                avgGreen = round((float)sumGreen / 6.0);
+
+            }
+
+            else if (x == width - 1 && y > 0 && y < height - 1)
+            {
+
+                for (int k = y - 1; k <= y + 1; k++)
+                {
+
+                    for (int l = x - 1; l <= x; l++)
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 6.0);
+                avgBlue = round((float)sumBlue / 6.0);
+                avgGreen = round((float)sumGreen / 6.0);
+
+            }
+
+            else if (y == height - 1 && x == 0)
+            {
+
+                for (int k = y -1; k <= y; k++)
+                {
+
+                    for (int l = x; l <= x + 1; l++)
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 4.0);
+                avgBlue = round((float)sumBlue / 4.0);
+                avgGreen = round((float)sumGreen / 4.0);
+
+            }
+
+            else if (y == height - 1 && x > 0 && x < width - 1)
+            {
+
+                for (int k = y - 1; k <= y; k++)
+                {
+
+                    for (int l = x - 1; l <= x + 1; l++)
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 6.0);
+                avgBlue = round((float)sumBlue / 6.0);
+                avgGreen = round((float)sumGreen / 6.0);
+            }
+
+            else if (y == height - 1 && x == width - 1)
+            {
+
+                for (int k = y - 1; k <= y; k++)
+                {
+
+                    for (int l = x - 1; l <= x; l++)
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 4.0);
+                avgBlue = round((float)sumBlue / 4.0);
+                avgGreen = round((float)sumGreen / 4.0);
+            }
+
+            else
+            {
+
+                for (int k = y - 1; k <= y + 1; k++)
+                {
+
+                    for (int l = x - 1; l <= x + 1; l++)
+                    {
+
+                        sumRed += blur[k][l].rgbtRed;
+                        sumBlue += blur[k][l].rgbtBlue;
+                        sumGreen += blur[k][l].rgbtGreen;
+
+                    }
+                }
+
+                avgRed = round((float)sumRed / 9.0);
+                avgBlue = round((float)sumBlue / 9.0);
+                avgGreen = round((float)sumGreen / 9.0);
+            }
+
+
+            image[y][x].rgbtRed = avgRed;
+            image[y][x].rgbtBlue = avgBlue;
+            image[y][x].rgbtGreen = avgGreen;
+
+        }
+    }
+
+    return;
+}
+
+// Detect edges
+void edges(int height, int width, RGBTRIPLE image[height][width])
+{
+
+    // CREATE AN ARRAY 2 PIXELS WIDER AND 2 PIXELS TALLER THAN ORIGINAL IMAGE
+    RGBTRIPLE edge[height + 2][width + 2];
+
+    // PAINT IT BLACK
+    for (int i = 0; i <= height + 1; i++)
+    {
+
+        for (int j = 0; j <= width + 1; j++)
+        {
+
+            edge[i][j].rgbtBlue = 0;
+            edge[1][j].rgbtGreen = 0;
+            edge[i][j].rgbtRed = 0;
+
+        }
+
+    }
+
+
+    // LOOP THROUGH ROWS OF IMAGE
+    for (int i = 0; i <= height - 1; i++)
+    {
+
+        //LOOP THROUGH COLUMNS OF IMAGE
+        for (int j = 0; j <= width - 1; j++)
+        {
+            // COPY THE COPY IMAGE TO THE CENTER OF EDGE IMAGE[0]
+            // EDGE IMAGE IS THE ORIGINAL IMAGE WITH A 1 PIXEL WIDE BLACK BORDER
+            edge[i + 1][j + 1] = image[i][j];
+
+        }
+
+    }
+    
+   
+    typedef struct
+    {
+        int blue;
+        int green;
+        int red;
+    } __attribute__((__packed__))
+    INTTRIPLE;
+
+
+
+ // DECLARE 2 NEW RGBTRIPLE ARRAYS
+    RGBTRIPLE G[3][3];
+
+
+    // LOOP THROUGH ROWS OF EDGE IMAGE
+    for (int i = 1; i <= height; i++)
+    {
+
+        // LOOP THROUGH COLUMNS OF EDGE IMAGE
+        for (int j = 1; j <= width; j++)
+        {
+
+            // POPULATE G RGBTRIPLE ARRAYS
+
+            G[0][0] = edge[i - 1][j - 1];
+            G[0][1] = edge[i - 1][j];
+            G[0][2] = edge[i - 1][j + 1];
+
+            G[1][0] = edge[i][j - 1];
+            G[1][1] = edge[i][j];
+            G[1][2] = edge[i][j + 1];
+
+            G[2][0] = edge[i + 1][j - 1];
+            G[2][1] = edge[i + 1][j];
+            G[2][2] = edge[i + 1][j + 1];
+
+            //  DECLARE 2 NEW INTTRIPLE ARRAYS
+            INTTRIPLE Gxi[3][3];
+            INTTRIPLE Gyi[3][3];
+            for (int k = 0; k < 3; k++)
+            {
+
+                for (int l = 0; l < 3; l++)
+                {
+
+                    // COPY G RGBTRIPLE ARRAY TO THE 2 NEW INTTRIPLE ARRAYS GXI & GYI
+
+                    Gxi[k][l].red = G[k][l].rgbtRed;
+                    Gxi[k][l].blue = G[k][l].rgbtBlue;
+                    Gxi[k][l].green = G[k][l].rgbtGreen;
+
+                    Gyi[k][l].red = G[k][l].rgbtRed;
+                    Gyi[k][l].blue = G[k][l].rgbtBlue;
+                    Gyi[k][l].green = G[k][l].rgbtGreen;
+                }
+            }
+
+
+            // SOBEL OPERATOR ARRAYS
+            int GxArr[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+            int GyArr[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+
+            // LOOP OVER ROWS OF THE 4 ARRAYS GXI, GYI, & THE SOBEL OPERATOR ARRAYS GXARR & GYARR
+            for (int k = 0; k <=2; k++)
+            {
+                // LOOP OVER COLUMNS OF SAME 4 ARRAYS
+                for (int l = 0; l <=2; l++)
+                {
+
+                    // MULTIPLIES GXI & GYI VALUES BY THE CORRESPONDING GXARR & GYARR VALUES
+                    Gxi[k][l].red *= GxArr[k][l];
+                    Gxi[k][l].blue *= GxArr[k][l];
+                    Gxi[k][l].green *= GxArr[k][l];
+
+                    Gyi[k][l].red *= GyArr[k][l];
+                    Gyi[k][l].blue *= GyArr[k][l];
+                    Gyi[k][l].green *= GyArr[k][l];
+
+                }
+            }
+
+            // INTEGERS TO HOLD THE SUM OF COLOR VALES FOR THE 9 ARRAY ELEMENTS
+            int GxRed = 0;
+            int GxBlue = 0;
+            int GxGreen = 0;
+
+            int GyRed = 0;
+            int GyBlue = 0;
+            int GyGreen = 0;
+
+            // LOOP OVER ROWS OF GXI AND GYI
+            for (int k = 0; k <= 2; k++)
+            {
+                // LOOP OVER COLUMNS OF GXI AND GYI
+                for (int l = 0; l <= 2; l++)
+                {
+
+                    // SUM ALL VALUES OF EACH COLOR CHANNEL FOR GX
+                    GxRed += Gxi[k][l].red;
+                    GxBlue += Gxi[k][l].blue;
+                    GxGreen += Gxi[k][l].green;
+
+                    // SUM ALL VALUES OF EACH COLOR CHANNEL FOR GY
+                    GyRed += Gyi[k][l].red;
+                    GyBlue += Gyi[k][l].blue;
+                    GyGreen += Gyi[k][l].green;
+
+                }
+            }
+
+            // SETS THE NEW COLOR VALUE VIA THE SOBEL FILTER ALGORITHM
+            int NewRed = round(sqrt(pow(GxRed, 2.0) + pow(GyRed, 2.0)));
+            int NewBlue = round(sqrt(pow(GxBlue, 2.0) + pow(GyBlue, 2.0)));
+            int NewGreen = round(sqrt(pow(GxGreen, 2.0) + pow(GyGreen, 2.0)));
+
+            // LIMITS VALUES TO <= 255
+            if (NewRed > 255)
+            {
+
+                NewRed = 255;
+
+            }
+
+            if (NewBlue > 255)
+            {
+
+                NewBlue = 255;
+
+            }
+
+            if (NewGreen > 255)
+            {
+
+                NewGreen = 255;
+
+            }
+
+            // COPIES THE NEW PIXEL COLOR VALUES TO THE ORIGINAL IMAGE
+            image[i - 1][j - 1].rgbtRed = NewRed;
+            image[i - 1][j - 1].rgbtBlue = NewBlue;
+            image[i - 1][j - 1].rgbtGreen = NewGreen;
+            
+            //printf("%i  %i  %i\n", image[i - 1][j - 1].rgbtBlue, image[i - 1][j - 1].rgbtGreen, image[i - 1][j - 1].rgbtRed);
+
+
+        }
+    }
+
+    return;
+}
